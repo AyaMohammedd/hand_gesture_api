@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from prometheus_fastapi_instrumentator import Instrumentator
 import numpy as np
 import pickle
 import logging
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 # ---------- FASTAPI APP ----------
 app = FastAPI(title="Hand Gesture Recognition API", version="1.0.0")
+Instrumentator().instrument(app).expose(app)
 
 # ---------- GLOBAL START TIME ----------
 app_start_time = time.time()
