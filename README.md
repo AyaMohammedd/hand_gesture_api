@@ -149,7 +149,3 @@ The API returns appropriate HTTP status codes and error messages for various sce
 3. Commit your changes
 4. Push to the branch
 5. Create a new Pull Request
-
-## License
-
-[Specify your license here]
