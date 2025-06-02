@@ -7,7 +7,7 @@ import numpy as np
 import pickle
 import logging
 from typing import List, Optional
-import times
+import time
 from datetime import datetime
 import os
 
