@@ -174,9 +174,6 @@ Pre-configured dashboards are available at: http://localhost:3000
    docker exec -it hand_gesture_grafana grafana-cli admin reset-admin-password admin
    ```
 
-## 📝 License
-
-MIT License - see [LICENSE](LICENSE) for details.
 
 ## 👥 Contributing
 
@@ -214,7 +211,7 @@ pytest tests/
 
 ## Performance
 
-The API is optimized for low-latency predictions with the following characteristics:
+The API is optimized for predictions with the following characteristics:
 - Average prediction time: < 20ms
 - Memory efficient model loading
 - Built-in request validation
@@ -233,3 +230,24 @@ The API returns appropriate HTTP status codes and error messages for various sce
 3. Commit your changes
 4. Push to the branch
 5. Create a new Pull Request
+
+
+ ## Grafana Dashboard
+
+ <img width="1469" alt="Screenshot 2025-06-02 at 10 29 55 AM" src="https://github.com/user-attachments/assets/2aa8b29a-47a0-47ba-96cc-8e61f961b9a0" />
+ 
+
+ **Model-Related Metric: Model Prediction Response Time (POST /predict)** • What it Tracks: The average time it takes for the model to respond to inference requests on the /predict endpoint. 
+
+• Why It’s Important: It directly reflects model performance and responsiveness. High latency here can degrade user experience or break downstream systems expecting real-time results.
+
+**Data-Related Metric: Data Volume Returned by /metrics**
+ • What it Tracks: The average size of the HTTP response payload served from the /metrics endpoint. 
+ 
+ • Why It’s Important: /metrics is used by Prometheus to scrape system data—if its payload becomes too large: Scrapes may time out or fail. Monitoring may slow down or become incomplete. Networking or storage costs may rise, especially in high-frequency scraping environments.
+
+**Server-Related Metric: Server Load by Route**
+ • What it Tracks: The number of HTTP requests received by each handler/route (e.g., /predict, /health, /metrics). 
+ 
+ • Why It’s Important: Shows how traffic is distributed across your API. • Helps detect: Overloaded routes (e.g., /predict under constant stress). Unexpected usage patterns (e.g., bots hammering /docs or /health). Underused routes that may be obsolete or misconfigured.
+
