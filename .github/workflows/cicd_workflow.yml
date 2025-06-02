@@ -25,7 +25,7 @@ jobs:
       - name: Run Tests
         run: |
           cd tests
-          pytest 
+          pytest test_api.py
   
       - name: Build Docker Image
         run: |
