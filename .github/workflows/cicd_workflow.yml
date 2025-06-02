@@ -55,6 +55,28 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Install unzip and curl
+            sudo apt-get update -y
+            sudo apt-get install -y unzip curl
+
+            # Install AWS CLI
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install || true
+
+            # Add Docker group permission
+            sudo usermod -aG docker $USER || true
+            newgrp docker || true
+
+            # === Set AWS credentials for non-interactive use ===
+            mkdir -p ~/.aws
+
+            echo "[default]" > ~/.aws/credentials
+            echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+            echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+
+            echo "[default]" > ~/.aws/config
+            echo "region=${{ secrets.AWS_REGION }}" >> ~/.aws/config
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
             docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hand_gesture_api:latest
             docker stop hand_gesture_api || true # In case the container doesn't exist yet
