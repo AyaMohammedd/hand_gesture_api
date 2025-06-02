@@ -174,10 +174,6 @@ Pre-configured dashboards are available at: http://localhost:3000
    docker exec -it hand_gesture_grafana grafana-cli admin reset-admin-password admin
    ```
 
-## 📝 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
 ## 👥 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
