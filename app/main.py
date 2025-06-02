@@ -16,16 +16,16 @@ logger = logging.getLogger(__name__)
 
 # ---------- FASTAPI APP ----------
 app = FastAPI(title="Hand Gesture Recognition API", version="1.0.0")
-Instrumentator().instrument(app).expose(app)
 
+# Allow CORS (all origins)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+Instrumentator().instrument(app).expose(app)
 # ---------- GLOBAL START TIME ----------
 app_start_time = time.time()
 
@@ -79,8 +79,8 @@ async def health_check():
     }
 
 # ---------- PREDICTION ENDPOINT ----------
-@app.post("/predict", response_model=PredictionResponse)
-async def predict_gesture(data: LandmarkData):
+@app.post("/predict")
+async def predict_gesture(request: Request):
     global prediction_count, error_count, latency_sum
 
     start_time = time.time()
@@ -90,12 +90,15 @@ async def predict_gesture(data: LandmarkData):
     if model is None or label_encoder is None:
         raise HTTPException(status_code=500, detail="Model or encoder not loaded")
 
-    if len(data.landmarks) != 63:
-        logger.error(f"Invalid input length: expected 63 landmarks, got {len(data.landmarks)}")
-        raise HTTPException(status_code=400, detail="Expected 63 landmark features")
-
     try:
-        features = np.array(data.landmarks).reshape(1, -1)
+        data = await request.json()
+        landmarks = data.get("landmarks")
+        
+        if not landmarks or len(landmarks) != 63:
+            logger.error(f"Invalid input length: expected 63 landmarks, got {len(landmarks) if landmarks else 'none'}")
+            raise HTTPException(status_code=400, detail="Expected 63 landmark features")
+
+        features = np.array(landmarks).reshape(1, -1)
         prediction = model.predict(features)[0]
         probabilities = model.predict_proba(features)[0]
         confidence = float(np.max(probabilities))
@@ -110,12 +113,12 @@ async def predict_gesture(data: LandmarkData):
         logger.info(f"Prediction: {gesture} → {direction} (confidence: {confidence:.3f})")
         print("oooooooooooooooooooooooo")
 
-        return PredictionResponse(
-            gesture=gesture,
-            direction=direction,
-            confidence=confidence,
-            timestamp=datetime.now().isoformat()
-        )
+        return {
+            "gesture": gesture,
+            "direction": direction,
+            "confidence": confidence,
+            "timestamp": datetime.now().isoformat()
+        }
 
     except Exception as e:
         error_count += 1
