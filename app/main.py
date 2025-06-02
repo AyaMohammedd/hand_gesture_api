@@ -18,12 +18,18 @@ logger = logging.getLogger(__name__)
 # ---------- FASTAPI APP ----------
 app = FastAPI(title="Hand Gesture Recognition API", version="1.0.0")
 
-# Allow CORS (all origins)
+origins = [
+    "http://127.0.0.1:5500",  # your frontend URL
+    "http://localhost:5500",
+    # you can add more origins if needed
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=origins,  # or ["*"] to allow all origins (less secure)
+    allow_credentials=True,
+    allow_methods=["*"],  # allow all HTTP methods like GET, POST, etc.
+    allow_headers=["*"],  # allow all headers
 )
 
 Instrumentator().instrument(app).expose(app)
