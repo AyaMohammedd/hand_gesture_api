@@ -84,6 +84,7 @@ async def predict_gesture(data: LandmarkData):
     global prediction_count, error_count, latency_sum
 
     start_time = time.time()
+    print("vvvvvvvvvvvvvvvvvvvvvvvvvvv")
 
     # Input validation (before try-catch to avoid being caught by the generic exception handler)
     if model is None or label_encoder is None:
@@ -107,6 +108,7 @@ async def predict_gesture(data: LandmarkData):
         prediction_count += 1
 
         logger.info(f"Prediction: {gesture} → {direction} (confidence: {confidence:.3f})")
+        print("oooooooooooooooooooooooo")
 
         return PredictionResponse(
             gesture=gesture,
@@ -118,7 +120,9 @@ async def predict_gesture(data: LandmarkData):
     except Exception as e:
         error_count += 1
         logger.error(f"Prediction error: {str(e)}")
+        print("kkkkkkkkkkkkkkkkkkkkkkkk")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 # ---------- METRICS ENDPOINT ----------
 @app.get("/app-metrics")
