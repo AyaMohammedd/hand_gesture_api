@@ -4,12 +4,33 @@ from pydantic import BaseModel
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
+import pandas as pd
 import pickle
 import logging
 from typing import List, Optional
 import time
 from datetime import datetime
 import os
+
+
+def normalize_landmarks(df):
+    """Normalize hand landmarks by recentering and scaling"""
+    wrist_x = df['x1'].values
+    wrist_y = df['y1'].values
+    middle_tip_x = df['x13'].values
+    middle_tip_y = df['y13'].values
+
+    scale_factor = np.sqrt((middle_tip_x - wrist_x)**2 + (middle_tip_y - wrist_y)**2)
+
+    for i in range(1, 22):
+        df[f'x{i}'] = (df[f'x{i}'] - wrist_x) / scale_factor
+        df[f'y{i}'] = (df[f'y{i}'] - wrist_y) / scale_factor
+
+    print("Wrist (x1, y1) after normalization:", df[['x1', 'y1']].mean().values)
+    print("Middle finger tip (x13, y13) distance from wrist:",
+          np.sqrt(df['x13']**2 + df['y13']**2).mean())
+
+    return df
 
 # ---------- CONFIGURE LOGGING ----------
 logging.basicConfig(level=logging.INFO)
@@ -91,7 +112,6 @@ async def predict_gesture(request: Request):
     global prediction_count, error_count, latency_sum
 
     start_time = time.time()
-    print("vvvvvvvvvvvvvvvvvvvvvvvvvvv")
 
     # Input validation (before try-catch to avoid being caught by the generic exception handler)
     if model is None or label_encoder is None:
@@ -112,6 +132,9 @@ async def predict_gesture(request: Request):
     try:
 
         features = np.array(landmarks).reshape(1, -1)
+        feature_names = [f'{axis}{i}' for i in range(1, 22) for axis in ['x', 'y', 'z']]
+        features = pd.DataFrame(features, columns=feature_names)
+        features = normalize_landmarks(features)
         prediction = model.predict(features)[0]
         probabilities = model.predict_proba(features)[0]
         confidence = float(np.max(probabilities))
@@ -124,7 +147,6 @@ async def predict_gesture(request: Request):
         prediction_count += 1
 
         logger.info(f"Prediction: {gesture} → {direction} (confidence: {confidence:.3f})")
-        print("oooooooooooooooooooooooo")
 
         return {
             "gesture": gesture,
@@ -136,7 +158,6 @@ async def predict_gesture(request: Request):
     except Exception as e:
         error_count += 1
         logger.error(f"Prediction error: {str(e)}")
-        print("kkkkkkkkkkkkkkkkkkkkkkkk")
         raise HTTPException(status_code=500, detail=str(e))
 
 
