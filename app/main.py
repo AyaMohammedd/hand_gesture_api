@@ -112,7 +112,7 @@ async def predict_gesture(data: LandmarkData):
         raise HTTPException(status_code=500, detail=str(e))
 
 # ---------- METRICS ENDPOINT ----------
-@app.get("/metrics")
+@app.get("/app-metrics")
 async def get_metrics():
     avg_latency = latency_sum / prediction_count if prediction_count > 0 else 0.0
 

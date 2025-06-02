@@ -43,7 +43,7 @@ class TestAPI:
     
     def test_metrics_endpoint(self):
         """Test metrics endpoint"""
-        response = client.get("/metrics")
+        response = client.get("/app-metrics")
         assert response.status_code == 200
         data = response.json()
         assert "model_metrics" in data
