@@ -77,8 +77,8 @@ jobs:
 
             echo "[default]" > ~/.aws/config
             echo "region=${{ secrets.AWS_REGION }}" >> ~/.aws/config
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hand_gesture_api:latest
-            docker stop hand_gesture_api || true # In case the container doesn't exist yet
-            docker rm hand_gesture_api || true
-            docker run -d -p 80:8000 --name hand_gesture_api ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hand_gesture_api:latest
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+            sudo docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hand_gesture_api:latest
+            sudo docker stop hand_gesture_api || true # In case the container doesn't exist yet
+            sudo docker rm hand_gesture_api || true
+            sudo docker run -d -p 80:8000 --name hand_gesture_api ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/hand_gesture_api:latest
