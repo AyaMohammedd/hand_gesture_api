@@ -91,13 +91,19 @@ async def predict_gesture(request: Request):
     if model is None or label_encoder is None:
         raise HTTPException(status_code=500, detail="Model or encoder not loaded")
 
+    # Move input validation outside the try block to ensure it's not caught by the generic exception handler
     try:
         data = await request.json()
         landmarks = data.get("landmarks")
+    except Exception as e:
+        logger.error(f"Invalid JSON input: {str(e)}")
+        raise HTTPException(status_code=400, detail="Invalid JSON input") from e
         
-        if not landmarks or len(landmarks) != 63:
-            logger.error(f"Invalid input length: expected 63 landmarks, got {len(landmarks) if landmarks else 'none'}")
-            raise HTTPException(status_code=400, detail="Expected 63 landmark features")
+    if not landmarks or len(landmarks) != 63:
+        logger.error(f"Invalid input length: expected 63 landmarks, got {len(landmarks) if landmarks else 'none'}")
+        raise HTTPException(status_code=400, detail="Expected 63 landmark features")
+
+    try:
 
         features = np.array(landmarks).reshape(1, -1)
         prediction = model.predict(features)[0]
