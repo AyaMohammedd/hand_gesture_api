@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi import Request
 from pydantic import BaseModel
 from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,7 +7,7 @@ import numpy as np
 import pickle
 import logging
 from typing import List, Optional
-import time
+import times
 from datetime import datetime
 import os
 
